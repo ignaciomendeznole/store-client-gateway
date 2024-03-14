@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ORDERS_SERVICE } from 'src/config';
+import { NATS_SERVICE } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { OrderPaginationDto } from 'src/common/dto/order-pagination.dto';
@@ -19,25 +19,23 @@ import { StatusDto } from './dto';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(
-    @Inject(ORDERS_SERVICE) private readonly ordersClient: ClientProxy,
-  ) {}
+  constructor(@Inject(NATS_SERVICE) private readonly natsClient: ClientProxy) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersClient.send('create_order', createOrderDto);
+    return this.natsClient.send('create_order', createOrderDto);
   }
 
   @Get()
   findAll(@Query() orderPaginationDto: OrderPaginationDto) {
-    return this.ordersClient.send('find_all_orders', orderPaginationDto);
+    return this.natsClient.send('find_all_orders', orderPaginationDto);
   }
 
   @Get('id/:id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     try {
       const order = await firstValueFrom(
-        this.ordersClient.send('find_one_order', id),
+        this.natsClient.send('find_one_order', id),
       );
 
       return order;
@@ -51,7 +49,7 @@ export class OrdersController {
     @Param() statusDto: StatusDto,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.ordersClient.send('find_all_orders', {
+    return this.natsClient.send('find_all_orders', {
       ...paginationDto,
       status: statusDto.status,
     });
@@ -64,7 +62,7 @@ export class OrdersController {
   ) {
     try {
       const updated = firstValueFrom(
-        this.ordersClient.send('change_order_status', {
+        this.natsClient.send('change_order_status', {
           id,
           status: statusDto.status,
         }),
