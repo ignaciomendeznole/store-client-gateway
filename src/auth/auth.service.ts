@@ -12,7 +12,6 @@ export class AuthService {
   constructor(@Inject(NATS_SERVICE) private readonly natsClient: ClientProxy) {}
 
   async registerUser(registerUserDto: RegisterUserDto) {
-    this.logger.log('registerUser', registerUserDto);
     try {
       const res = await firstValueFrom(
         this.natsClient.send('auth.register.user', registerUserDto),
