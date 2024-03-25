@@ -1,9 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { NATS_SERVICE } from 'src/config';
 import { RegisterUserDto, LoginUserDto } from './dto';
 import { firstValueFrom } from 'rxjs';
-import { RpcCustomExceptionFilter } from 'src/common/exceptions/rpc-custom-exception.filter';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +17,7 @@ export class AuthService {
       );
       return res;
     } catch (error) {
-      throw new RpcCustomExceptionFilter();
+      throw new RpcException(error);
     }
   }
 
@@ -29,7 +28,7 @@ export class AuthService {
       );
       return res;
     } catch (error) {
-      throw new RpcCustomExceptionFilter();
+      throw new RpcException(error);
     }
   }
 
@@ -40,7 +39,7 @@ export class AuthService {
       );
       return res;
     } catch (error) {
-      throw new RpcCustomExceptionFilter();
+      throw new RpcException(error);
     }
   }
 }
