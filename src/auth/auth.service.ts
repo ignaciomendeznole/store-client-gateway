@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { NATS_SERVICE } from 'src/config';
 import { RegisterUserDto, LoginUserDto } from './dto';
@@ -7,9 +7,12 @@ import { RpcCustomExceptionFilter } from 'src/common/exceptions/rpc-custom-excep
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger('AuthService');
+
   constructor(@Inject(NATS_SERVICE) private readonly natsClient: ClientProxy) {}
 
   async registerUser(registerUserDto: RegisterUserDto) {
+    this.logger.log('registerUser', registerUserDto);
     try {
       const res = await firstValueFrom(
         this.natsClient.send('auth.register.user', registerUserDto),
